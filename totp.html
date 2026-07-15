@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOTP 动态验证码生成器</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f4f6f8;
+      color: #1f2937;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .desc {
+      margin: 0 0 22px;
+      color: #6b7280;
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .otp-box {
+      margin-top: 22px;
+      padding: 22px;
+      background: #f9fafb;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+
+    .otp {
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 8px;
+      color: #111827;
+      font-variant-numeric: tabular-nums;
+      user-select: all;
+    }
+
+    .timer {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .bar-inner {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.25s linear;
+    }
+
+    .error {
+      margin-top: 12px;
+      color: #dc2626;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .warning {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #fff7ed;
+      color: #9a3412;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>TOTP 动态验证码</h1>
+    <p class="desc">输入 Base32 密钥后，在浏览器本地实时生成 6 位验证码。页面不会保存密钥。</p>
+
+    <label for="secretInput">Base32 密钥</label>
+    <input id="secretInput" type="text" placeholder="例如：JBSWY3DPEHPK3PXP" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+
+    <div class="actions">
+      <button class="primary" onclick="startTotp()">开始生成</button>
+      <button class="secondary" onclick="clearSecret()">清空</button>
+    </div>
+
+    <div class="otp-box">
+      <div id="otp" class="otp">------</div>
+      <div id="timer" class="timer">等待输入密钥</div>
+      <div class="bar">
+        <div id="barInner" class="bar-inner"></div>
+      </div>
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <div class="warning">
+      注意：不要把真实密钥写死在 HTML 里，也不要上传包含密钥的版本到 GitHub。真实生产账号更建议使用 Google Authenticator、Microsoft Authenticator 或系统安全存储。
+    </div>
+  </div>
+
+  <script>
+    let currentSecret = "";
+    let timerId = null;
+
+    async function startTotp() {
+      const input = document.getElementById("secretInput");
+      const secret = input.value.trim().replace(/\s+/g, "").toUpperCase();
+
+      clearError();
+
+      if (!secret) {
+        showError("请输入 Base32 密钥");
+        return;
+      }
+
+      if (!/^[A-Z2-7]+=*$/.test(secret)) {
+        showError("密钥格式不正确，只能包含 A-Z 和 2-7");
+        return;
+      }
+
+      currentSecret = secret;
+      await updateCode();
+
+      if (timerId) {
+        clearInterval(timerId);
+      }
+      timerId = setInterval(updateCode, 1000);
+    }
+
+    async function updateCode() {
+      if (!currentSecret) return;
+
+      try {
+        const code = await generateTOTP(currentSecret);
+        document.getElementById("otp").textContent = code;
+
+        const now = Math.floor(Date.now() / 1000);
+        const remaining = 30 - (now % 30);
+        document.getElementById("timer").textContent = remaining + " 秒后刷新";
+        document.getElementById("barInner").style.width = (remaining / 30 * 100) + "%";
+      } catch (e) {
+        showError(e.message || "生成失败");
+      }
+    }
+
+    async function generateTOTP(base32Secret) {
+      const keyBytes = base32Decode(base32Secret);
+      const epoch = Math.floor(Date.now() / 1000);
+      const counter = Math.floor(epoch / 30);
+
+      const counterBytes = new ArrayBuffer(8);
+      const view = new DataView(counterBytes);
+      view.setUint32(0, Math.floor(counter / 0x100000000));
+      view.setUint32(4, counter >>> 0);
+
+      const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyBytes,
+        { name: "HMAC", hash: "SHA-1" },
+        false,
+        ["sign"]
+      );
+
+      const hmac = await crypto.subtle.sign("HMAC", cryptoKey, counterBytes);
+      const hash = new Uint8Array(hmac);
+
+      const offset = hash[hash.length - 1] & 0x0f;
+      const binary =
+        ((hash[offset] & 0x7f) << 24) |
+        ((hash[offset + 1] & 0xff) << 16) |
+        ((hash[offset + 2] & 0xff) << 8) |
+        (hash[offset + 3] & 0xff);
+
+      const otp = binary % 1000000;
+      return otp.toString().padStart(6, "0");
+    }
+
+    function base32Decode(base32) {
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+      const clean = base32.replace(/=+$/, "").replace(/\s+/g, "").toUpperCase();
+
+      let bits = "";
+      for (const char of clean) {
+        const value = alphabet.indexOf(char);
+        if (value === -1) {
+          throw new Error("非法 Base32 字符：" + char);
+        }
+        bits += value.toString(2).padStart(5, "0");
+      }
+
+      const bytes = [];
+      for (let i = 0; i + 8 <= bits.length; i += 8) {
+        bytes.push(parseInt(bits.substring(i, i + 8), 2));
+      }
+
+      return new Uint8Array(bytes);
+    }
+
+    function clearSecret() {
+      currentSecret = "";
+      document.getElementById("secretInput").value = "";
+      document.getElementById("otp").textContent = "------";
+      document.getElementById("timer").textContent = "等待输入密钥";
+      document.getElementById("barInner").style.width = "0%";
+      clearError();
+
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function showError(message) {
+      document.getElementById("error").textContent = message;
+    }
+
+    function clearError() {
+      document.getElementById("error").textContent = "";
+    }
+  </script>
+</body>
+</html>

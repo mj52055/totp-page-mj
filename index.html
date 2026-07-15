@@ -2,300 +2,44 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TOTP 动态验证码生成器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Voltage Tools</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: #f4f6f8;
-      color: #1f2937;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
-      padding: 24px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 24px;
-      text-align: center;
-    }
-
-    .desc {
-      margin: 0 0 22px;
-      color: #6b7280;
-      font-size: 14px;
-      text-align: center;
-      line-height: 1.5;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    input {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .primary {
-      background: #2563eb;
-      color: white;
-    }
-
-    .secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    .otp-box {
-      margin-top: 22px;
-      padding: 22px;
-      background: #f9fafb;
-      border-radius: 16px;
-      text-align: center;
-      border: 1px solid #e5e7eb;
-    }
-
-    .otp {
-      font-size: 42px;
-      line-height: 1;
-      font-weight: 800;
-      letter-spacing: 8px;
-      color: #111827;
-      font-variant-numeric: tabular-nums;
-      user-select: all;
-    }
-
-    .timer {
-      margin-top: 12px;
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    .bar {
-      height: 8px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .bar-inner {
-      height: 100%;
-      width: 0%;
-      background: #2563eb;
-      transition: width 0.25s linear;
-    }
-
-    .error {
-      margin-top: 12px;
-      color: #dc2626;
-      font-size: 14px;
-      min-height: 20px;
-    }
-
-    .warning {
-      margin-top: 18px;
-      padding: 12px;
-      border-radius: 12px;
-      background: #fff7ed;
-      color: #9a3412;
-      font-size: 13px;
-      line-height: 1.5;
-    }
+    :root{--bg:#f4f7fb;--card:rgba(255,255,255,.88);--border:rgba(15,23,42,.08);--text:#172033;--muted:#667085;--primary:#2563eb;--soft:#eaf1ff;--shadow:0 18px 55px rgba(15,23,42,.10);--input:rgba(255,255,255,.78)}
+    @media(prefers-color-scheme:dark){:root{--bg:#0c111d;--card:rgba(19,27,44,.88);--border:rgba(255,255,255,.08);--text:#f5f7fb;--muted:#a6b0c3;--primary:#72a3ff;--soft:rgba(37,99,235,.18);--shadow:0 18px 55px rgba(0,0,0,.30);--input:rgba(17,24,39,.72)}}
+    *{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 10% 10%,rgba(37,99,235,.14),transparent 32%),radial-gradient(circle at 90% 0%,rgba(79,70,229,.12),transparent 30%),var(--bg)}a{color:inherit;text-decoration:none}.page{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:max(36px,env(safe-area-inset-top)) 0 max(48px,env(safe-area-inset-bottom))}.hero{padding:30px 4px 22px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:var(--soft);color:var(--primary);font-size:13px;font-weight:800;letter-spacing:.04em}h1{margin:18px 0 10px;font-size:clamp(34px,7vw,62px);line-height:1.02;letter-spacing:-.045em}.subtitle{max-width:680px;margin:0;color:var(--muted);font-size:clamp(15px,2.4vw,18px);line-height:1.7}.toolbar{display:flex;align-items:center;gap:12px;margin:24px 0 22px}.search{width:100%;border:1px solid var(--border);background:var(--input);color:var(--text);box-shadow:var(--shadow);border-radius:16px;padding:14px 16px;font-size:15px;outline:none;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}.search:focus{border-color:rgba(37,99,235,.55);box-shadow:0 0 0 4px rgba(37,99,235,.10),var(--shadow)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.tool-card{position:relative;min-height:235px;display:flex;flex-direction:column;padding:24px;border:1px solid var(--border);border-radius:24px;background:var(--card);box-shadow:var(--shadow);overflow:hidden;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}.tool-card:hover{transform:translateY(-5px);border-color:rgba(37,99,235,.32);box-shadow:0 24px 70px rgba(15,23,42,.16)}.tool-card:after{content:"";position:absolute;width:150px;height:150px;right:-50px;bottom:-70px;border-radius:50%;background:var(--accent,rgba(37,99,235,.13));filter:blur(2px)}.icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:var(--soft);font-size:25px}.tool-card h2{margin:20px 0 9px;font-size:22px;letter-spacing:-.02em}.tool-card p{margin:0;color:var(--muted);line-height:1.65;font-size:14px}.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.tag{padding:6px 9px;border-radius:999px;background:rgba(127,127,127,.10);color:var(--muted);font-size:12px;font-weight:700}.open{margin-top:auto;padding-top:20px;display:flex;align-items:center;justify-content:space-between;color:var(--primary);font-weight:800;font-size:14px;position:relative;z-index:1}.arrow{font-size:20px;transition:transform .2s ease}.tool-card:hover .arrow{transform:translateX(4px)}.empty{display:none;padding:34px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:20px}footer{padding:28px 4px 0;color:var(--muted);font-size:13px;text-align:center}@media(max-width:760px){.page{width:min(100% - 22px,1120px)}.hero{padding-top:18px}.grid{grid-template-columns:1fr}.tool-card{min-height:220px;padding:21px}}@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>TOTP 动态验证码</h1>
-    <p class="desc">输入 Base32 密钥后，在浏览器本地实时生成 6 位验证码。页面不会保存密钥。</p>
-
-    <label for="secretInput">Base32 密钥</label>
-    <input id="secretInput" type="text" placeholder="例如：JBSWY3DPEHPK3PXP" autocomplete="off" autocapitalize="characters" spellcheck="false" />
-
-    <div class="actions">
-      <button class="primary" onclick="startTotp()">开始生成</button>
-      <button class="secondary" onclick="clearSecret()">清空</button>
-    </div>
-
-    <div class="otp-box">
-      <div id="otp" class="otp">------</div>
-      <div id="timer" class="timer">等待输入密钥</div>
-      <div class="bar">
-        <div id="barInner" class="bar-inner"></div>
-      </div>
-    </div>
-
-    <div id="error" class="error"></div>
-
-    <div class="warning">
-      注意：不要把真实密钥写死在 HTML 里，也不要上传包含密钥的版本到 GitHub。真实生产账号更建议使用 Google Authenticator、Microsoft Authenticator 或系统安全存储。
-    </div>
-  </div>
-
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">VOLTAGE · TOOLBOX</div>
+      <h1>Voltage Tools</h1>
+      <p class="subtitle">常用开发与运维小工具集合。所有页面均为纯静态实现，核心计算在浏览器本地完成。</p>
+    </section>
+    <div class="toolbar"><input id="searchInput" class="search" type="search" placeholder="搜索工具，例如：CAC、TOTP、报文、验证码" autocomplete="off" /></div>
+    <section id="toolGrid" class="grid">
+      <a class="tool-card" href="./cac-tool.html" data-keywords="cac i1 十六进制 报文 解析 json crc modbus 电压" style="--accent:rgba(37,99,235,.16)">
+        <div class="icon">📡</div><h2>CAC I1 报文解析</h2><p>校验报文头尾与 CRC16，并将 I1 十六进制报文解析为结构化 JSON。</p>
+        <div class="tag-row"><span class="tag">HEX</span><span class="tag">CRC16</span><span class="tag">JSON</span></div>
+        <div class="open"><span>打开工具</span><span class="arrow">→</span></div>
+      </a>
+      <a class="tool-card" href="./totp.html" data-keywords="totp otp 动态 验证码 base32 google authenticator 安全" style="--accent:rgba(124,58,237,.15)">
+        <div class="icon">🔐</div><h2>TOTP 动态验证码</h2><p>输入 Base32 密钥，在浏览器本地实时生成 6 位动态验证码，不上传、不保存密钥。</p>
+        <div class="tag-row"><span class="tag">TOTP</span><span class="tag">Base32</span><span class="tag">本地计算</span></div>
+        <div class="open"><span>打开工具</span><span class="arrow">→</span></div>
+      </a>
+    </section>
+    <div id="emptyState" class="empty">没有找到匹配的工具。</div>
+    <footer>Voltage Tools · Static utilities for GitHub Pages</footer>
+  </main>
   <script>
-    let currentSecret = "";
-    let timerId = null;
-
-    async function startTotp() {
-      const input = document.getElementById("secretInput");
-      const secret = input.value.trim().replace(/\s+/g, "").toUpperCase();
-
-      clearError();
-
-      if (!secret) {
-        showError("请输入 Base32 密钥");
-        return;
-      }
-
-      if (!/^[A-Z2-7]+=*$/.test(secret)) {
-        showError("密钥格式不正确，只能包含 A-Z 和 2-7");
-        return;
-      }
-
-      currentSecret = secret;
-      await updateCode();
-
-      if (timerId) {
-        clearInterval(timerId);
-      }
-      timerId = setInterval(updateCode, 1000);
-    }
-
-    async function updateCode() {
-      if (!currentSecret) return;
-
-      try {
-        const code = await generateTOTP(currentSecret);
-        document.getElementById("otp").textContent = code;
-
-        const now = Math.floor(Date.now() / 1000);
-        const remaining = 30 - (now % 30);
-        document.getElementById("timer").textContent = remaining + " 秒后刷新";
-        document.getElementById("barInner").style.width = (remaining / 30 * 100) + "%";
-      } catch (e) {
-        showError(e.message || "生成失败");
-      }
-    }
-
-    async function generateTOTP(base32Secret) {
-      const keyBytes = base32Decode(base32Secret);
-      const epoch = Math.floor(Date.now() / 1000);
-      const counter = Math.floor(epoch / 30);
-
-      const counterBytes = new ArrayBuffer(8);
-      const view = new DataView(counterBytes);
-      view.setUint32(0, Math.floor(counter / 0x100000000));
-      view.setUint32(4, counter >>> 0);
-
-      const cryptoKey = await crypto.subtle.importKey(
-        "raw",
-        keyBytes,
-        { name: "HMAC", hash: "SHA-1" },
-        false,
-        ["sign"]
-      );
-
-      const hmac = await crypto.subtle.sign("HMAC", cryptoKey, counterBytes);
-      const hash = new Uint8Array(hmac);
-
-      const offset = hash[hash.length - 1] & 0x0f;
-      const binary =
-        ((hash[offset] & 0x7f) << 24) |
-        ((hash[offset + 1] & 0xff) << 16) |
-        ((hash[offset + 2] & 0xff) << 8) |
-        (hash[offset + 3] & 0xff);
-
-      const otp = binary % 1000000;
-      return otp.toString().padStart(6, "0");
-    }
-
-    function base32Decode(base32) {
-      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-      const clean = base32.replace(/=+$/, "").replace(/\s+/g, "").toUpperCase();
-
-      let bits = "";
-      for (const char of clean) {
-        const value = alphabet.indexOf(char);
-        if (value === -1) {
-          throw new Error("非法 Base32 字符：" + char);
-        }
-        bits += value.toString(2).padStart(5, "0");
-      }
-
-      const bytes = [];
-      for (let i = 0; i + 8 <= bits.length; i += 8) {
-        bytes.push(parseInt(bits.substring(i, i + 8), 2));
-      }
-
-      return new Uint8Array(bytes);
-    }
-
-    function clearSecret() {
-      currentSecret = "";
-      document.getElementById("secretInput").value = "";
-      document.getElementById("otp").textContent = "------";
-      document.getElementById("timer").textContent = "等待输入密钥";
-      document.getElementById("barInner").style.width = "0%";
-      clearError();
-
-      if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-      }
-    }
-
-    function showError(message) {
-      document.getElementById("error").textContent = message;
-    }
-
-    function clearError() {
-      document.getElementById("error").textContent = "";
-    }
+    const searchInput=document.getElementById('searchInput');
+    const cards=Array.from(document.querySelectorAll('.tool-card'));
+    const emptyState=document.getElementById('emptyState');
+    function filterTools(){const keyword=searchInput.value.trim().toLowerCase();let visibleCount=0;cards.forEach(card=>{const text=[card.textContent,card.dataset.keywords||''].join(' ').toLowerCase();const visible=!keyword||text.includes(keyword);card.style.display=visible?'flex':'none';if(visible)visibleCount++});emptyState.style.display=visibleCount?'none':'block'}
+    searchInput.addEventListener('input',filterTools);
   </script>
 </body>
 </html>
