@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>JSON 转 Excel · Voltage Tools</title>
+  <style>
+    :root{--bg:#f4f7fb;--card:rgba(255,255,255,.9);--border:#dfe5ef;--text:#172033;--muted:#667085;--primary:#2563eb;--primary-hover:#1d4ed8;--soft:#eef4ff;--danger:#dc2626;--success:#15803d;--input:#fff;--head:#f8fafc;--shadow:0 18px 50px rgba(15,23,42,.09)}
+    @media(prefers-color-scheme:dark){:root{--bg:#0c111d;--card:rgba(19,27,44,.92);--border:#303a4d;--text:#f5f7fb;--muted:#a6b0c3;--primary:#72a3ff;--primary-hover:#91b7ff;--soft:rgba(37,99,235,.18);--danger:#fb7185;--success:#4ade80;--input:#111827;--head:#182132;--shadow:0 18px 50px rgba(0,0,0,.28)}}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 8% 0,rgba(37,99,235,.14),transparent 28%),var(--bg)}button,input,textarea{font:inherit}.page{width:min(1180px,calc(100% - 32px));margin:auto;padding:32px 0 50px}.back{display:inline-flex;align-items:center;gap:6px;color:var(--primary);font-weight:700;text-decoration:none}.header{margin:24px 0}.header h1{margin:0 0 10px;font-size:clamp(30px,5vw,46px);letter-spacing:-.035em}.header p{margin:0;color:var(--muted);line-height:1.7}.card{margin-top:18px;padding:22px;border:1px solid var(--border);border-radius:20px;background:var(--card);box-shadow:var(--shadow);backdrop-filter:blur(16px)}.card-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.card-title h2{margin:0;font-size:19px}.actions{display:flex;flex-wrap:wrap;gap:9px}.btn,.file-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:11px;padding:10px 15px;font-weight:750;cursor:pointer;transition:.18s}.btn:disabled{opacity:.48;cursor:not-allowed}.btn.primary{color:#fff;background:#2563eb}.btn.primary:hover:not(:disabled){background:#1d4ed8}.btn.secondary,.file-btn{color:var(--primary);background:var(--soft)}.btn.danger{color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent)}input[type=file]{display:none}textarea{width:100%;min-height:250px;padding:15px;border:1px solid var(--border);border-radius:13px;outline:none;resize:vertical;color:var(--text);background:var(--input);font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}textarea:focus,input[type=text]:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 15%,transparent)}.message{min-height:22px;margin:10px 2px 0;color:var(--muted);font-size:14px}.message.error{color:var(--danger)}.message.ok{color:var(--success)}.field-tools{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-bottom:12px}.hint{margin-left:auto;color:var(--muted);font-size:13px}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:13px}.field-table,.preview-table{width:100%;border-collapse:collapse}.field-table{min-width:680px}.field-table th,.field-table td,.preview-table th,.preview-table td{padding:11px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}.field-table th,.preview-table th{position:sticky;top:0;background:var(--head);font-size:13px;color:var(--muted)}.field-table tr:last-child td,.preview-table tr:last-child td{border-bottom:0}.field-table tr.dragging{opacity:.42}.drag{cursor:grab;color:var(--muted);font-size:18px}.alias{width:100%;min-width:180px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;color:var(--text);background:var(--input);outline:none}.order-buttons{display:flex;gap:5px}.icon-btn{width:31px;height:31px;border:1px solid var(--border);border-radius:8px;color:var(--text);background:var(--input);cursor:pointer}.icon-btn:disabled{opacity:.3;cursor:not-allowed}.empty{padding:34px;text-align:center;color:var(--muted)}.export-row{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}.label{display:block;margin:0 0 7px;color:var(--muted);font-size:13px;font-weight:700}.text-input{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;outline:none;color:var(--text);background:var(--input)}.preview-wrap{max-height:360px;overflow:auto;border:1px solid var(--border);border-radius:13px}.preview-table{font-size:13px}.preview-table td{max-width:280px;overflow:hidden;text-overflow:ellipsis}.privacy{margin-top:15px;color:var(--muted);font-size:13px;text-align:center}@media(max-width:700px){.page{width:min(100% - 20px,1180px);padding-top:20px}.card{padding:16px}.card-title{align-items:flex-start;flex-direction:column}.hint{width:100%;margin:0}.export-row{grid-template-columns:1fr}.export-row .btn{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="./index.html">← 返回工具箱</a>
+    <header class="header"><h1>JSON 转 Excel</h1><p>粘贴或导入 JSON，配置字段顺序、列名和是否导出，然后生成标准 XLSX 文件。</p></header>
+
+    <section class="card">
+      <div class="card-title"><h2>1. 输入 JSON</h2><div class="actions"><label class="file-btn" for="jsonFile">导入 JSON</label><input id="jsonFile" type="file" accept=".json,application/json,text/json" /><button id="sampleBtn" class="btn secondary" type="button">填充示例</button><button id="clearBtn" class="btn danger" type="button">清空</button></div></div>
+      <textarea id="jsonInput" spellcheck="false" placeholder='支持对象数组，例如：[{"name":"张三","age":20}]；也支持单个对象。'></textarea>
+      <div id="message" class="message" role="status" aria-live="polite">请输入 JSON 数据。</div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><h2>2. 配置导出字段</h2></div>
+      <div class="field-tools"><button id="selectAllBtn" class="btn secondary" type="button">全选</button><button id="selectNoneBtn" class="btn secondary" type="button">全不选</button><button id="resetFieldsBtn" class="btn secondary" type="button">恢复默认</button><span class="hint">拖动行或使用箭头调整 Excel 列顺序</span></div>
+      <div id="fieldContainer" class="table-wrap"><div class="empty">解析 JSON 后可配置字段</div></div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><h2>3. 数据预览</h2><span id="previewMeta" class="hint"></span></div>
+      <div id="previewContainer"><div class="empty">暂无预览数据</div></div>
+    </section>
+
+    <section class="card">
+      <div class="export-row"><div><label class="label" for="fileName">文件名</label><input id="fileName" class="text-input" type="text" value="json-data" maxlength="100" /></div><div><label class="label" for="sheetName">工作表名称</label><input id="sheetName" class="text-input" type="text" value="数据" maxlength="31" /></div><button id="exportBtn" class="btn primary" type="button" disabled>导出 XLSX</button></div>
+    </section>
+    <div class="privacy">所有解析与导出均在浏览器本地完成，数据不会上传。</div>
+  </main>
+
+  <script>
+    const els={input:document.getElementById('jsonInput'),file:document.getElementById('jsonFile'),message:document.getElementById('message'),fields:document.getElementById('fieldContainer'),preview:document.getElementById('previewContainer'),meta:document.getElementById('previewMeta'),export:document.getElementById('exportBtn'),fileName:document.getElementById('fileName'),sheetName:document.getElementById('sheetName')};
+    let rows=[],fieldSettings=[],dragIndex=null,parseTimer;
+
+    function flatten(value,prefix='',out={}){
+      if(value&&typeof value==='object'&&!Array.isArray(value)){
+        const entries=Object.entries(value);
+        if(!entries.length&&prefix)out[prefix]='{}';
+        entries.forEach(([key,item])=>flatten(item,prefix?`${prefix}.${key}`:key,out));
+      }else if(prefix){out[prefix]=Array.isArray(value)?JSON.stringify(value):value}
+      return out;
+    }
+    function parseInput(){
+      const text=els.input.value.trim();
+      if(!text){rows=[];fieldSettings=[];renderAll();setMessage('请输入 JSON 数据。','');return}
+      try{
+        const source=JSON.parse(text);let list=Array.isArray(source)?source:[source];
+        if(!list.length)throw new Error('JSON 数组不能为空');
+        if(!list.every(item=>item!==null&&typeof item==='object'&&!Array.isArray(item)))throw new Error('顶层数据必须是对象或对象数组');
+        rows=list.map(item=>flatten(item));
+        const fields=[];rows.forEach(row=>Object.keys(row).forEach(key=>{if(!fields.includes(key))fields.push(key)}));
+        if(!fields.length)throw new Error('没有发现可导出的字段');
+        const old=new Map(fieldSettings.map(item=>[item.key,item]));
+        fieldSettings=fields.map(key=>old.has(key)?old.get(key):{key,alias:key,enabled:true});
+        renderAll();setMessage(`解析成功：${rows.length} 行，${fields.length} 个字段。`,'ok');
+      }catch(error){rows=[];fieldSettings=[];renderAll();setMessage(`解析失败：${error.message}`,'error')}
+    }
+    function setMessage(text,type){els.message.textContent=text;els.message.className=`message ${type}`}
+    function selectedFields(){return fieldSettings.filter(field=>field.enabled)}
+    function renderAll(){renderFields();renderPreview();els.export.disabled=!rows.length||!selectedFields().length}
+    function renderFields(){
+      if(!fieldSettings.length){els.fields.innerHTML='<div class="empty">解析 JSON 后可配置字段</div>';return}
+      els.fields.innerHTML=`<table class="field-table"><thead><tr><th>排序</th><th>导出</th><th>原字段名</th><th>Excel 列名（别名）</th><th>调整</th></tr></thead><tbody>${fieldSettings.map((field,index)=>`<tr draggable="true" data-index="${index}"><td class="drag" title="拖动排序">⠿</td><td><input class="enabled" type="checkbox" ${field.enabled?'checked':''} aria-label="导出 ${escapeHtml(field.key)}" /></td><td><code>${escapeHtml(field.key)}</code></td><td><input class="alias" type="text" value="${escapeHtml(field.alias)}" aria-label="${escapeHtml(field.key)} 的别名" /></td><td><div class="order-buttons"><button class="icon-btn up" type="button" ${index===0?'disabled':''} title="上移">↑</button><button class="icon-btn down" type="button" ${index===fieldSettings.length-1?'disabled':''} title="下移">↓</button></div></td></tr>`).join('')}</tbody></table>`;
+      els.fields.querySelectorAll('tbody tr').forEach(tr=>{
+        const index=Number(tr.dataset.index);
+        tr.querySelector('.enabled').addEventListener('change',event=>{fieldSettings[index].enabled=event.target.checked;renderPreview();els.export.disabled=!selectedFields().length});
+        tr.querySelector('.alias').addEventListener('input',event=>{fieldSettings[index].alias=event.target.value;renderPreview()});
+        tr.querySelector('.up').addEventListener('click',()=>moveField(index,index-1));tr.querySelector('.down').addEventListener('click',()=>moveField(index,index+1));
+        tr.addEventListener('dragstart',()=>{dragIndex=index;tr.classList.add('dragging')});tr.addEventListener('dragend',()=>{dragIndex=null;tr.classList.remove('dragging')});
+        tr.addEventListener('dragover',event=>event.preventDefault());tr.addEventListener('drop',event=>{event.preventDefault();if(dragIndex!==null&&dragIndex!==index)moveField(dragIndex,index)});
+      });
+    }
+    function moveField(from,to){const [field]=fieldSettings.splice(from,1);fieldSettings.splice(to,0,field);renderAll()}
+    function renderPreview(){
+      const fields=selectedFields();
+      if(!rows.length||!fields.length){els.preview.innerHTML=`<div class="empty">${rows.length?'请至少选择一个字段':'暂无预览数据'}</div>`;els.meta.textContent='';return}
+      const sample=rows.slice(0,10);els.preview.innerHTML=`<div class="preview-wrap"><table class="preview-table"><thead><tr>${fields.map(field=>`<th>${escapeHtml(field.alias||field.key)}</th>`).join('')}</tr></thead><tbody>${sample.map(row=>`<tr>${fields.map(field=>`<td title="${escapeHtml(formatValue(row[field.key]))}">${escapeHtml(formatValue(row[field.key]))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+      els.meta.textContent=`${rows.length} 行 × ${fields.length} 列${rows.length>10?'（预览前 10 行）':''}`;
+    }
+    function formatValue(value){if(value===null)return '';if(value===undefined)return '';if(typeof value==='object')return JSON.stringify(value);return String(value)}
+    function escapeHtml(value){return String(value).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))}
+    function xml(value){return String(value).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))}
+    function columnName(number){let result='';while(number){number--;result=String.fromCharCode(65+number%26)+result;number=Math.floor(number/26)}return result}
+    function cellXml(value,ref,style=0){
+      if(value===null||value===undefined)return `<c r="${ref}"${style?` s="${style}"`:''}/>`;
+      if(typeof value==='number'&&Number.isFinite(value))return `<c r="${ref}"${style?` s="${style}"`:''}><v>${value}</v></c>`;
+      if(typeof value==='boolean')return `<c r="${ref}" t="b"${style?` s="${style}"`:''}><v>${value?1:0}</v></c>`;
+      return `<c r="${ref}" t="inlineStr"${style?` s="${style}"`:''}><is><t xml:space="preserve">${xml(formatValue(value))}</t></is></c>`;
+    }
+    function buildXlsx(data,fields,sheet){
+      const encoder=new TextEncoder();const now=new Date().toISOString();
+      const table=[fields.map(field=>field.alias.trim()||field.key),...data.map(row=>fields.map(field=>row[field.key]))];
+      const widths=fields.map((field,col)=>Math.min(50,Math.max(10,...table.slice(0,200).map(row=>[...formatValue(row[col])].length+2))));
+      const rowXml=table.map((row,rowIndex)=>`<row r="${rowIndex+1}">${row.map((value,col)=>cellXml(value,`${columnName(col+1)}${rowIndex+1}`,rowIndex===0?1:0)).join('')}</row>`).join('');
+      const lastRef=`${columnName(fields.length)}${table.length}`;
+      const files={
+        '[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`,
+        '_rels/.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`,
+        'docProps/core.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>Voltage Tools</dc:creator><cp:lastModifiedBy>Voltage Tools</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`,
+        'docProps/app.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Voltage Tools</Application></Properties>`,
+        'xl/workbook.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${xml(sheet)}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+        'xl/_rels/workbook.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+        'xl/styles.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2563EB"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`,
+        'xl/worksheets/sheet1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:${lastRef}"/><sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${widths.map((width,index)=>`<col min="${index+1}" max="${index+1}" width="${width}" customWidth="1"/>`).join('')}</cols><sheetData>${rowXml}</sheetData><autoFilter ref="A1:${lastRef}"/></worksheet>`
+      };
+      return zip(Object.entries(files).map(([name,content])=>({name,data:encoder.encode(content)})));
+    }
+    const crcTable=(()=>{const table=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;table[n]=c>>>0}return table})();
+    function crc32(data){let crc=0xffffffff;for(const byte of data)crc=crcTable[(crc^byte)&255]^(crc>>>8);return(crc^0xffffffff)>>>0}
+    function zip(files){
+      const encoder=new TextEncoder(),locals=[],centrals=[];let offset=0;
+      const u16=(view,pos,value)=>view.setUint16(pos,value,true),u32=(view,pos,value)=>view.setUint32(pos,value>>>0,true);
+      files.forEach(file=>{const name=encoder.encode(file.name),crc=crc32(file.data);const local=new Uint8Array(30+name.length+file.data.length),lv=new DataView(local.buffer);u32(lv,0,0x04034b50);u16(lv,4,20);u16(lv,6,0x0800);u16(lv,8,0);u16(lv,10,0);u16(lv,12,0);u32(lv,14,crc);u32(lv,18,file.data.length);u32(lv,22,file.data.length);u16(lv,26,name.length);u16(lv,28,0);local.set(name,30);local.set(file.data,30+name.length);locals.push(local);
+        const central=new Uint8Array(46+name.length),cv=new DataView(central.buffer);u32(cv,0,0x02014b50);u16(cv,4,20);u16(cv,6,20);u16(cv,8,0x0800);u16(cv,10,0);u16(cv,12,0);u16(cv,14,0);u32(cv,16,crc);u32(cv,20,file.data.length);u32(cv,24,file.data.length);u16(cv,28,name.length);u16(cv,30,0);u16(cv,32,0);u16(cv,34,0);u16(cv,36,0);u32(cv,38,0);u32(cv,42,offset);central.set(name,46);centrals.push(central);offset+=local.length});
+      const centralSize=centrals.reduce((sum,item)=>sum+item.length,0),end=new Uint8Array(22),ev=new DataView(end.buffer);u32(ev,0,0x06054b50);u16(ev,4,0);u16(ev,6,0);u16(ev,8,files.length);u16(ev,10,files.length);u32(ev,12,centralSize);u32(ev,16,offset);u16(ev,20,0);return new Blob([...locals,...centrals,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    }
+    function safeFileName(name){return(name.trim()||'json-data').replace(/[\\/:*?"<>|]/g,'_').replace(/\.xlsx$/i,'')}
+    function safeSheetName(name){return(name.trim()||'数据').replace(/[\\/*?:\[\]]/g,'_').slice(0,31)}
+    function exportXlsx(){const fields=selectedFields();if(!rows.length||!fields.length)return;try{const blob=buildXlsx(rows,fields,safeSheetName(els.sheetName.value));const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`${safeFileName(els.fileName.value)}.xlsx`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);setMessage(`已导出 ${rows.length} 行、${fields.length} 列。`,'ok')}catch(error){setMessage(`导出失败：${error.message}`,'error')}}
+
+    els.input.addEventListener('input',()=>{clearTimeout(parseTimer);parseTimer=setTimeout(parseInput,250)});
+    els.file.addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{els.input.value=await file.text();els.fileName.value=file.name.replace(/\.json$/i,'')||'json-data';parseInput()}catch(error){setMessage(`读取文件失败：${error.message}`,'error')}event.target.value=''});
+    document.getElementById('sampleBtn').addEventListener('click',()=>{els.input.value=JSON.stringify([{id:1001,name:'张三',department:{name:'研发部',city:'上海'},active:true,tags:['前端','管理员']},{id:1002,name:'李四',department:{name:'产品部',city:'杭州'},active:false,tags:['产品']}],null,2);parseInput()});
+    document.getElementById('clearBtn').addEventListener('click',()=>{els.input.value='';rows=[];fieldSettings=[];renderAll();setMessage('已清空。','')});
+    document.getElementById('selectAllBtn').addEventListener('click',()=>{fieldSettings.forEach(field=>field.enabled=true);renderAll()});document.getElementById('selectNoneBtn').addEventListener('click',()=>{fieldSettings.forEach(field=>field.enabled=false);renderAll()});
+    document.getElementById('resetFieldsBtn').addEventListener('click',()=>{if(!rows.length)return;const fields=[];rows.forEach(row=>Object.keys(row).forEach(key=>{if(!fields.includes(key))fields.push(key)}));fieldSettings=fields.map(key=>({key,alias:key,enabled:true}));renderAll()});
+    els.export.addEventListener('click',exportXlsx);
+  </script>
+</body>
+</html>

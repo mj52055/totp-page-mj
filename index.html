@@ -18,7 +18,7 @@
       <h1>Voltage Tools</h1>
       <p class="subtitle">常用开发与运维小工具集合。所有页面均为纯静态实现，核心计算在浏览器本地完成。</p>
     </section>
-    <div class="toolbar"><input id="searchInput" class="search" type="search" placeholder="搜索工具，例如：、TOTP、报文、验证码" autocomplete="off" /></div>
+    <div class="toolbar"><input id="searchInput" class="search" type="search" placeholder="搜索工具，例如：Base64、JSON、Excel、TOTP" autocomplete="off" /></div>
     <section id="toolGrid" class="grid">
       <a class="tool-card" href="./cac-tool.html" data-keywords=" i1 十六进制 报文 解析 json crc modbus 电压" style="--accent:rgba(37,99,235,.16)">
         <div class="icon">📡</div><h2> 报文解析</h2><p>校验报文头尾与 CRC16，并将 I1 十六进制报文解析为结构化 JSON。</p>
@@ -28,6 +28,16 @@
       <a class="tool-card" href="./totp.html" data-keywords="totp otp 动态 验证码 base32 google authenticator 安全" style="--accent:rgba(124,58,237,.15)">
         <div class="icon">🔐</div><h2>TOTP 动态验证码</h2><p>输入 Base32 密钥，在浏览器本地实时生成 6 位动态验证码，不上传、不保存密钥。</p>
         <div class="tag-row"><span class="tag">TOTP</span><span class="tag">Base32</span><span class="tag">本地计算</span></div>
+        <div class="open"><span>打开工具</span><span class="arrow">→</span></div>
+      </a>
+      <a class="tool-card" href="./json-to-excel.html" data-keywords="json excel xlsx 表格 导出 字段 排序 别名 选择" style="--accent:rgba(16,185,129,.15)">
+        <div class="icon">📊</div><h2>JSON 转 Excel</h2><p>将 JSON 数据导出为 XLSX，支持字段排序、修改列名和按需选择导出字段。</p>
+        <div class="tag-row"><span class="tag">JSON</span><span class="tag">XLSX</span><span class="tag">字段配置</span></div>
+        <div class="open"><span>打开工具</span><span class="arrow">→</span></div>
+      </a>
+      <a class="tool-card" href="./base_64_to_file_offline.html" data-keywords="base64 data url 文件 转换 下载 图片 pdf 文本 预览 离线" style="--accent:rgba(245,158,11,.16)">
+        <div class="icon">📦</div><h2>Base64 转文件</h2><p>将 Base64 或 Data URL 转换为文件，支持格式识别、图片与文本预览以及本地下载。</p>
+        <div class="tag-row"><span class="tag">Base64</span><span class="tag">文件预览</span><span class="tag">离线转换</span></div>
         <div class="open"><span>打开工具</span><span class="arrow">→</span></div>
       </a>
     </section>
